@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 set -e
 # Parse flags for this script
@@ -10,9 +10,9 @@ for arg in "$@"; do
   fi
 done
 
-CURRENT_DIR=$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
+CURRENT_DIR=$(cd -P "$(dirname "$0")" 2>/dev/null && pwd)
 
-function add_nemory_to_path_if_needed() {
+add_nemory_to_path_if_needed() {
     NEMORY_BIN_DIR="$CURRENT_DIR/cli/bin"
     if [ "$DONT_MODIFY_PATH" = true ]; then
       echo "PATH will not be modified, make sure to add $NEMORY_BIN_DIR to your PATH variable"
