@@ -19,16 +19,23 @@ add_nemory_to_path_if_needed() {
       exit 0
     fi
 
-    BASHRC="$HOME/.bashrc"
-    if grep -q "$NEMORY_BIN_DIR" "$BASHRC" >/dev/null 2>&1; then
+    # Choose shell rc file: prefer zsh if detected/present, else bash
+    RC_FILE="$HOME/.bashrc"
+    if [ -n "$SHELL" ] && echo "$SHELL" | grep -q "zsh"; then
+      RC_FILE="$HOME/.zshrc"
+    elif [ -f "$HOME/.zshrc" ]; then
+      RC_FILE="$HOME/.zshrc"
+    fi
+    if grep -q "$NEMORY_BIN_DIR" "$RC_FILE" >/dev/null 2>&1; then
       echo "$NEMORY_BIN_DIR is already in the PATH"
       exit 0
     fi
-    echo "Attempting to add nemory to PATH..."
-    cat >> "$BASHRC" <<EOF
+    echo "Attempting to add nemory to PATH in $RC_FILE..."
+    cat >> "$RC_FILE" <<EOF
 # Adding nemory to the PATH
 export PATH=\$PATH:$NEMORY_BIN_DIR
 EOF
+    echo "Added PATH update to $RC_FILE. Restart your shell or 'source' the file to use 'nemory'."
 }
 
 echo "Downloading latest Nemory release..."
