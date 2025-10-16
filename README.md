@@ -4,7 +4,7 @@ Published nemory releases
 
 # Install nemory
 To install the latest version of nemory please run 
-(this will automatically add `nemory` binary to your PATH modyfying .bashrc file)
+(this will automatically add `nemory` binary to your PATH modifying .bashrc file)
 ```bash
 curl -L https://raw.githubusercontent.com/JetBrains/nemory-releases/refs/heads/main/install.sh | sh
 ```
