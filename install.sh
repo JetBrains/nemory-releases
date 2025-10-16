@@ -1,6 +1,35 @@
 #!/usr/bin/env bash
 
 set -e
+# Parse flags for this script
+DONT_MODIFY_PATH=false
+for arg in "$@"; do
+  if [ "$arg" = "--dont-modify-path" ]; then
+    DONT_MODIFY_PATH=true
+    break
+  fi
+done
+
+CURRENT_DIR=$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
+
+function add_nemory_to_path_if_needed() {
+    NEMORY_BIN_DIR="$CURRENT_DIR/cli/bin"
+    if [ "$DONT_MODIFY_PATH" = true ]; then
+      echo "PATH will not be modified, make sure to add $NEMORY_BIN_DIR to your PATH variable"
+      exit 0
+    fi
+
+    BASHRC="$HOME/.bashrc"
+    if grep -q "$NEMORY_BIN_DIR" "$BASHRC" >/dev/null 2>&1; then
+      echo "$NEMORY_BIN_DIR is already in the PATH"
+      exit 0
+    fi
+    echo "Attempting to add nemory to PATH..."
+    cat >> "$BASHRC" <<EOF
+# Adding nemory to the PATH
+export PATH=\$PATH:$NEMORY_BIN_DIR
+EOF
+}
 
 echo "Downloading latest Nemory release..."
 
@@ -36,6 +65,7 @@ if [ $? -eq 0 ]; then
     echo "Cleaning up..."
     rm "${FILENAME}"
     echo "Installation complete!"
+    add_nemory_to_path_if_needed
 else
     echo "Error: Extraction failed"
     exit 1
