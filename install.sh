@@ -12,6 +12,21 @@ done
 
 CURRENT_DIR=$(cd -P "$(dirname "$0")" 2>/dev/null && pwd)
 
+# === Terms of Service agreement ===
+TERMS_URL="https://www.jetbrains.com/legal/docs/terms/jetbrains-eap-nemory/"
+echo
+echo "By continuing, you agree to our Terms and Conditions."
+echo "See: $TERMS_URL"
+printf "Do you want to continue? [Yes (default)/No]: "
+read -r REPLY
+
+REPLY=$(echo "$REPLY" | tr '[:upper:]' '[:lower:]')
+
+if [ "$REPLY" = "no" ] || [ "$REPLY" = "n" ]; then
+  echo "Installation aborted."
+  exit 1
+fi
+
 add_nemory_to_path_if_needed() {
     NEMORY_BIN_DIR="$CURRENT_DIR/cli/bin"
     if [ "$DONT_MODIFY_PATH" = true ]; then
