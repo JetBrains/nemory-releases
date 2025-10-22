@@ -18,11 +18,7 @@ echo
 echo "By continuing, you agree to our Terms and Conditions."
 echo "See: $TERMS_URL"
 printf "Do you want to continue? [Yes (default)/No]: "
-if [ -r /dev/tty ]; then
-  read -r REPLY </dev/tty || true
-else
-  REPLY=""
-fi
+read -r REPLY </dev/tty
 
 REPLY=$(echo "$REPLY" | tr '[:upper:]' '[:lower:]')
 
