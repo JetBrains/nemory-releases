@@ -34,7 +34,19 @@ add_nemory_to_path_if_needed() {
       exit 0
     fi
 
-    # Choose shell rc file: prefer zsh if detected/present, else bash
+    # Ask the user first (default = Yes). If they say No, behave like --dont-modify-path.
+    echo
+    echo "Modify your shell profile to add 'nemory' to your \$PATH?"
+    printf "Do you want to continue (Y/n)? "
+    read -r PATH_REPLY </dev/tty
+    PATH_REPLY=$(echo "$PATH_REPLY" | tr '[:upper:]' '[:lower:]')
+
+    if [ "$PATH_REPLY" = "no" ] || [ "$PATH_REPLY" = "n" ]; then
+      echo "PATH will not be modified, make sure to add $NEMORY_BIN_DIR to your PATH variable"
+      exit 0
+    fi
+
+    # Choose shell rc file: prefer zsh if detected/present, else bash (original logic preserved)
     RC_FILE="$HOME/.bashrc"
     if [ -n "$SHELL" ] && echo "$SHELL" | grep -q "zsh"; then
       RC_FILE="$HOME/.zshrc"
