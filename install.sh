@@ -1,5 +1,74 @@
 #!/usr/bin/env sh
 
+need_major=4
+need_minor=2
+is_modern_bash() {
+  local major=${BASH_VERSINFO[0]:-0}
+  local minor=${BASH_VERSINFO[1]:-0}
+  (( major > need_major )) || { (( major == need_major )) && (( minor >= need_minor )); }
+}
+
+find_modern_bash() {
+  # Try common locations + brew prefix, if available
+  local candidates
+  candidates="/opt/homebrew/bin/bash /usr/local/bin/bash"
+  if command -v brew >/dev/null 2>&1; then
+    candidates="$candidates $(brew --prefix 2>/dev/null)/bin/bash"
+  fi
+  for nb in $candidates; do
+    [ -x "$nb" ] || continue
+    if "$nb" -c '(( BASH_VERSINFO[0] > 4 )) || (( BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 2 ))' >/dev/null 2>&1; then
+      echo "$nb"
+      return 0
+    fi
+  done
+  return 1
+}
+
+ensure_modern_bash() {
+  if is_modern_bash; then
+    return 0
+  fi
+
+  if [[ "$OSTYPE" == darwin* ]]; then
+    # If a suitable bash is already on disk, use it
+    if nb="$(find_modern_bash)"; then
+      exec "$nb" "$0" "$@"
+    fi
+
+    # Try to install/upgrade via Homebrew
+    if command -v brew >/dev/null 2>&1; then
+      echo "Bash >= 4.2 required (found: ${BASH_VERSION:-unknown})."
+      echo "Attempting to install/upgrade Bash via Homebrew..."
+      # If not installed, install; otherwise upgrade (no-op if current)
+      if ! brew list bash >/dev/null 2>&1; then
+        brew install bash || { echo "Homebrew install failed."; exit 1; }
+      else
+        brew upgrade bash || true
+      fi
+
+      # Re-scan for the modern bash and exec
+      if nb="$(find_modern_bash)"; then
+        echo "Using Bash at: $nb"
+        exec "$nb" "$0" "$@"
+      fi
+
+      # Give PATH help if we still can’t find it
+      echo "Bash installed but not found on PATH."
+      echo "Try: eval \"\$(/opt/homebrew/bin/brew shellenv)\""
+      echo "Then re-run: \"\$(brew --prefix)/bin/bash\" \"$0\" $*"
+      exit 1
+    else
+      echo "Bash >= 4.2 required (found: ${BASH_VERSION:-unknown})."
+      echo "Homebrew not found. Install Homebrew from https://brew.sh then run: brew install bash"
+      exit 1
+    fi
+  fi
+}
+
+ensure_modern_bash "$@"
+
+
 set -e
 # Parse flags for this script
 DONT_MODIFY_PATH=false
