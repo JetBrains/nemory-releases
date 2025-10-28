@@ -28,7 +28,9 @@ if [ "$REPLY" = "no" ] || [ "$REPLY" = "n" ]; then
 fi
 
 add_nemory_to_path_if_needed() {
-    NEMORY_BIN_DIR="$CURRENT_DIR/cli/bin"
+    INSTALL_DIR="$HOME/.nemory"
+    NEMORY_BIN_DIR="$INSTALL_DIR/cli/bin"
+
     if [ "$DONT_MODIFY_PATH" = true ]; then
       echo "PATH will not be modified, make sure to add $NEMORY_BIN_DIR to your PATH variable"
       exit 0
@@ -53,6 +55,9 @@ add_nemory_to_path_if_needed() {
     elif [ -f "$HOME/.zshrc" ]; then
       RC_FILE="$HOME/.zshrc"
     fi
+
+    mkdir -p "$NEMORY_BIN_DIR"
+
     if grep -q "$NEMORY_BIN_DIR" "$RC_FILE" >/dev/null 2>&1; then
       echo "$NEMORY_BIN_DIR is already in the PATH"
       exit 0
@@ -92,7 +97,8 @@ fi
 echo "Download completed successfully"
 echo "Extracting ${FILENAME}..."
 
-tar -xf "${FILENAME}"
+mkdir -p "$HOME/.nemory"
+tar -xf "${FILENAME}" -C "$HOME/.nemory"
 
 if [ $? -eq 0 ]; then
     echo "Extraction completed successfully"
